@@ -5,7 +5,11 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const dbPath = join(__dirname, '..', 'parking.db');
+// Detect if we are running in a deployed environment (AWS EB sets PORT and NODE_ENV)
+const isDeployed = process.env.NODE_ENV === 'production' || process.env.PORT;
+const dbDir = isDeployed ? '/tmp' : join(__dirname, '..');
+const dbPath = process.env.DB_PATH || join(dbDir, 'parking.db');
+
 const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrency

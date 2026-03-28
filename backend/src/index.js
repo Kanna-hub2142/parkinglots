@@ -14,7 +14,13 @@ import auth from './routes/auth.js';
 import release from './routes/release.js';
 import { startWorker } from './worker.js';
 
-const app = new Hono({ strict: false });
+const app = new Hono();
+
+// Global error handler
+app.onError((err, c) => {
+    console.error('Unhandled Hono Error:', err);
+    return c.json({ error: 'Internal Server Error', details: err.message }, 500);
+});
 
 // CORS — allow frontend during development
 app.use('/*', cors({

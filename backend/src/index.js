@@ -14,7 +14,7 @@ import auth from './routes/auth.js';
 import release from './routes/release.js';
 import { startWorker } from './worker.js';
 
-const app = new Hono();
+const app = new Hono({ strict: false });
 
 // CORS — allow frontend during development
 app.use('/*', cors({

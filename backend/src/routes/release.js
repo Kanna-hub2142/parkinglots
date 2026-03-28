@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import db from '../db.js';
 import { sqsClient, SendMessageCommand } from '../utils/sqsClient.js';
 
-const release = new Hono();
+const release = new Hono({ strict: false });
 
 // GET /api/release/parking/:vehicleId — release a vehicle (public link for QR)
 release.get('/:vehicleId', async (c) => {

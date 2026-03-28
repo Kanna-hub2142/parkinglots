@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import db from '../db.js';
 import { JWT_SECRET, authMiddleware } from '../middleware/auth.js';
 
-const auth = new Hono();
+const auth = new Hono({ strict: false });
 
 // POST /api/auth/register — user sign up
 auth.post('/register', async (c) => {

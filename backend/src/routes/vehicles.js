@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import db from '../db.js';
 import { authMiddleware } from '../middleware/auth.js';
 
-const vehicles = new Hono();
+const vehicles = new Hono({ strict: false });
 
 // POST /api/vehicles/register — register a vehicle (requires login)
 vehicles.post('/register', authMiddleware, async (c) => {

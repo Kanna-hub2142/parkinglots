@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import db from '../db.js';
 import { authMiddleware, adminOnly } from '../middleware/auth.js';
 
-const parkingLots = new Hono();
+const parkingLots = new Hono({ strict: false });
 
 // GET /api/parking-lots — list all (public, with optional ?search= filter)
 parkingLots.get('/', (c) => {

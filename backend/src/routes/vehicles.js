@@ -8,10 +8,15 @@ const vehicles = new Hono();
 vehicles.post('/register', authMiddleware, async (c) => {
     const user = c.get('user');
     const body = await c.req.json();
-    const { name, mobile, vehicleType, vehicleName, vehicleNumber, parkingLotId } = body;
+    const { name, mobile, vehicleType, vehicleName, vehicleNumber, parkingLotId, startAt } = body;
 
-    if (!name || !mobile || !vehicleType || !vehicleName || !vehicleNumber) {
-        return c.json({ error: 'All fields are required' }, 400);
+    if (!name || !mobile || !vehicleType || !vehicleName || !vehicleNumber || !startAt) {
+        return c.json({ error: 'All fields are required, including parking start date and time' }, 400);
+    }
+
+    const startMs = Date.parse(startAt);
+    if (Number.isNaN(startMs)) {
+        return c.json({ error: 'Invalid parking start date and time' }, 400);
     }
 
     // Check if vehicle number already registered
@@ -35,9 +40,9 @@ vehicles.post('/register', authMiddleware, async (c) => {
     }
 
     const result = db.prepare(`
-        INSERT INTO vehicles (name, mobile, vehicle_type, vehicle_name, vehicle_number, parking_lot_id, user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(name, mobile, vehicleType, vehicleName, vehicleNumber, parkingLotId || null, user.id);
+        INSERT INTO vehicles (name, mobile, vehicle_type, vehicle_name, vehicle_number, parking_lot_id, user_id, start_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(name, mobile, vehicleType, vehicleName, vehicleNumber, parkingLotId || null, user.id, new Date(startMs).toISOString());
 
     return c.json({ id: Number(result.lastInsertRowid), message: '✅ Vehicle registered successfully!' }, 201);
 });
@@ -46,7 +51,7 @@ vehicles.post('/register', authMiddleware, async (c) => {
 vehicles.get('/my-vehicles', authMiddleware, (c) => {
     const user = c.get('user');
     const rows = db.prepare(`
-        SELECT v.*, p.place_name AS parking_lot_name
+        SELECT v.*, p.place_name AS parking_lot_name, p.hourly_rate AS hourly_rate
         FROM vehicles v
         LEFT JOIN parking_lots p ON v.parking_lot_id = p.id
         WHERE v.user_id = ?
@@ -64,7 +69,7 @@ vehicles.get('/', authMiddleware, (c) => {
     }
 
     const rows = db.prepare(`
-        SELECT v.*, p.place_name AS parking_lot_name, u.username AS owner
+        SELECT v.*, p.place_name AS parking_lot_name, p.hourly_rate AS hourly_rate, u.username AS owner
         FROM vehicles v
         LEFT JOIN parking_lots p ON v.parking_lot_id = p.id
         LEFT JOIN users u ON v.user_id = u.id

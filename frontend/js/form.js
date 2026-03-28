@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "/api";
 
 document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem("token");
@@ -71,6 +71,14 @@ document.addEventListener("DOMContentLoaded", function () {
         formContainer.appendChild(input);
     }
 
+    function defaultParkingStartLocal() {
+        const d = new Date();
+        d.setMinutes(0, 0, 0);
+        d.setHours(d.getHours() + 1);
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
     createInput("Name", "name");
     createInput("Mobile Number", "mobile", "tel");
 
@@ -95,6 +103,17 @@ document.addEventListener("DOMContentLoaded", function () {
     createInput("Vehicle Name", "vname");
     createInput("Vehicle Number", "vnumber");
 
+    let labelStart = document.createElement("label");
+    labelStart.textContent = "Parking start (date & time)";
+    labelStart.setAttribute("for", "parkingStart");
+    let inputStart = document.createElement("input");
+    inputStart.type = "datetime-local";
+    inputStart.id = "parkingStart";
+    inputStart.required = true;
+    inputStart.value = defaultParkingStartLocal();
+    formContainer.appendChild(labelStart);
+    formContainer.appendChild(inputStart);
+
     // Buttons
     let buttonsContainer = document.createElement("div");
     buttonsContainer.classList.add("btn-group");
@@ -118,6 +137,16 @@ document.addEventListener("DOMContentLoaded", function () {
     formContainer.addEventListener("submit", async function (e) {
         e.preventDefault();
 
+        const startLocal = document.getElementById("parkingStart").value;
+        const startDate = startLocal ? new Date(startLocal) : null;
+        if (!startDate || Number.isNaN(startDate.getTime())) {
+            statusMsg.style.display = "block";
+            statusMsg.style.background = "#fee2e2";
+            statusMsg.style.color = "#dc2626";
+            statusMsg.textContent = "Please choose a valid parking start date and time.";
+            return;
+        }
+
         const payload = {
             name: document.getElementById("name").value.trim(),
             mobile: document.getElementById("mobile").value.trim(),
@@ -125,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
             vehicleName: document.getElementById("vname").value.trim(),
             vehicleNumber: document.getElementById("vnumber").value.trim(),
             parkingLotId: lotId ? parseInt(lotId) : null,
+            startAt: startDate.toISOString(),
         };
 
         try {

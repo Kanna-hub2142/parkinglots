@@ -45,6 +45,7 @@ db.exec(`
     vehicle_number TEXT NOT NULL UNIQUE,
     parking_lot_id INTEGER,
     user_id INTEGER,
+    start_at TEXT NOT NULL,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (parking_lot_id) REFERENCES parking_lots(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id)

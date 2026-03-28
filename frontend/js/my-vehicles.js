@@ -1,4 +1,37 @@
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "/api";
+const MS_PER_HOUR = 60 * 60 * 1000;
+const MS_PER_MINUTE = 60 * 1000;
+
+function parseHourlyRate(hourlyRateStr) {
+    if (!hourlyRateStr) return null;
+    const cleaned = String(hourlyRateStr).replace(",", ".");
+    const match = cleaned.match(/([^\d.-]*)([\d.]+)/);
+    if (!match) return null;
+    const amount = parseFloat(match[2]);
+    if (Number.isNaN(amount)) return null;
+    return { prefix: match[1].trim(), amount };
+}
+
+/** Total = (elapsed time ÷ 1 hour) × hourly rate (continuous proration, not rounded up to full hours). */
+function parkingPricing(startAtIso, hourlyRateStr, nowMs = Date.now()) {
+    const startMs = startAtIso ? Date.parse(startAtIso) : NaN;
+    const started = !Number.isNaN(startMs) && nowMs >= startMs;
+    const statusLabel = started ? "Started" : "Not started";
+    const parsed = parseHourlyRate(hourlyRateStr);
+    if (!started || Number.isNaN(startMs)) {
+        const totalDisplay = parsed ? `${parsed.prefix}${(0).toFixed(2)}` : null;
+        return { statusLabel, elapsedMinutes: 0, totalDisplay };
+    }
+    const elapsed = Math.max(0, nowMs - startMs);
+    const fractionalHours = elapsed / MS_PER_HOUR;
+    const elapsedMinutes = elapsed / MS_PER_MINUTE;
+    if (!parsed) {
+        return { statusLabel, elapsedMinutes, totalDisplay: null };
+    }
+    const total = fractionalHours * parsed.amount;
+    const totalDisplay = `${parsed.prefix}${total.toFixed(2)}`;
+    return { statusLabel, elapsedMinutes, totalDisplay };
+}
 
 document.addEventListener("DOMContentLoaded", async function () {
     const token = localStorage.getItem("token");
@@ -66,6 +99,19 @@ async function loadVehicles() {
 
         vehicles.forEach(v => {
             const releaseUrl = `${window.location.origin}/api/release/parking/${v.id}`;
+            const { statusLabel, elapsedMinutes, totalDisplay } = parkingPricing(v.start_at, v.hourly_rate);
+            const startLine = v.start_at
+                ? `<p style="color:#64748b;font-size:14px;margin-top:6px;">🕐 Starts: ${new Date(v.start_at).toLocaleString()}</p>`
+                : "";
+            const statusBg = statusLabel === "Started" ? "#16a34a" : "#94a3b8";
+            const hoursLine = statusLabel === "Started"
+                ? `<p style="color:#0f172a;font-size:14px;margin-top:6px;">⏱ Time elapsed: <strong>${elapsedMinutes.toFixed(1)}</strong> min</p>`
+                : `<p style="color:#64748b;font-size:14px;margin-top:6px;">⏱ Billing begins at start time.</p>`;
+            const priceLine = v.parking_lot_name && v.hourly_rate
+                ? (totalDisplay !== null
+                    ? `<p style="color:#0f172a;font-size:15px;margin-top:4px;font-weight:700;">💰 Total: ${totalDisplay} <span style="font-weight:500;color:#64748b;font-size:13px;">(${v.hourly_rate}/hr)</span></p>`
+                    : `<p style="color:#64748b;font-size:14px;margin-top:4px;">💰 Rate: ${v.hourly_rate}/hr (unable to parse)</p>`)
+                : "";
 
             const card = document.createElement("div");
             card.classList.add("parking-card");
@@ -74,9 +120,13 @@ async function loadVehicles() {
                     <h3 style="font-weight:bold;">${v.vehicle_name}</h3>
                     <span class="badge" style="background:#6366f1;color:white;">${v.vehicle_type}</span>
                 </div>
+                <p style="margin-top:8px;"><span class="badge" style="background:${statusBg};color:white;">${statusLabel}</span></p>
                 <p style="font-weight:600;margin:5px 0;">🔢 ${v.vehicle_number}</p>
                 <p style="color:#64748b;">👤 ${v.name} &nbsp;|&nbsp; 📱 ${v.mobile}</p>
                 ${v.parking_lot_name ? `<p style="color:#4CAF50;font-weight:600;">📍 ${v.parking_lot_name}</p>` : ''}
+                ${startLine}
+                ${hoursLine}
+                ${priceLine}
                 <p style="color:#94a3b8;font-size:13px;margin-top:8px;">Registered: ${new Date(v.created_at).toLocaleDateString()}</p>
 
                 <!-- QR Code Section -->

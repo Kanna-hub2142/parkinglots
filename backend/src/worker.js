@@ -3,7 +3,7 @@ import db from './db.js';
 import dotenv from "dotenv";
 dotenv.config();
 
-const POLL_INTERVAL = process.env.POLL_INTERVAL;
+const POLL_INTERVAL = Number(process.env.POLL_INTERVAL) || 5000;
 
 async function processMessage(message) {
     try {

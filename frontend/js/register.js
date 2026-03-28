@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "/api";
 
 document.addEventListener("DOMContentLoaded", function () {
     // If already logged in, redirect

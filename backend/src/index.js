@@ -32,40 +32,43 @@ app.route('/api/release/parking', release);
 // Serve frontend static files (path works from backend/ or EB bundle root)
 app.use('/*', serveStatic({ root: frontendRoot }));
 
-// Events dummy API
-app.get('/api/events/nearby', (c) => {
-    return c.json({
-        "events": [
-            {
-                "id": "evt-abc-123",
-                "title": "Electric Picnic",
-                "category": "festival",
-                "status": "published",
-                "start_date": "2025-08-29T16:00:00Z",
-                "end_date": "2025-08-31T23:59:00Z",
-                "crowd_percentage": 87.5,
-                "crowd_level": "busy",
-                "max_capacity": 70000,
-                "tickets_sold": 61250,
-                "is_free": false,
-                "venue": {
-                    "name": "Stradbally Estate",
-                    "city": "Laois",
-                    "latitude": 53.0214,
-                    "longitude": -7.1372
-                }
-            }
-        ],
-        "total": 1,
-        "page": 1,
-        "page_size": 20
+// Events API - Fetch from external EventPark API
+app.get('/api/events/nearby', async (c) => {
+    const { latitude, longitude, radius, page, page_size } = c.req.query();
+    
+    const params = new URLSearchParams({
+        latitude: latitude || '12.971322',
+        longitude: longitude || '77.706048',
+        radius: radius || '5000',
+        page: page || '1',
+        page_size: page_size || '20'
     });
+
+    try {
+        const response = await fetch(`http://eventpark-api-alb-1390290683.us-east-1.elb.amazonaws.com:8001/api/v1/events/nearby?${params}`, {
+            headers: {
+                'accept': 'application/json',
+                'x-api-key': 'key_eventpark'
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`EventPark API error: ${response.status} ${response.statusText}`);
+            return c.json({ error: 'Failed to fetch events from external API' }, response.status);
+        }
+
+        const data = await response.json();
+        return c.json(data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return c.json({ error: 'Internal Server Error', details: error.message }, 500);
+    }
 });
 
 // Health check
 app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-const port = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || 8080;
 
 serve({
     fetch: app.fetch,

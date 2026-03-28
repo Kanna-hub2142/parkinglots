@@ -24,7 +24,19 @@ const parkingLots = [
     { placeName: "Carlow Market Parking", location: "📍Tullow Street, Carlow", mapLink: "https://www.google.com/maps/search/?api=1&query=Tullow+Street,+Carlow", totalCapacity: 90, available: 24, hourlyRate: "€2.5", lat: 52.8354, long: -6.9248 },
 ];
 
-// Clear existing data and re-seed
+// Check if already seeded to prevent data loss on every Elastic Beanstalk deploy
+let shouldSeed = true;
+try {
+    const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
+    if (userCount > 0) {
+        console.log('✅ Database is already seeded. Skipping to avoid data loss!');
+        process.exit(0);
+    }
+} catch(err) {
+    // If table doesn't exist yet, we should seed
+}
+
+// Clear existing data (just in case)
 db.exec('DELETE FROM vehicles');
 db.exec('DELETE FROM users');
 db.exec('DELETE FROM parking_lots');

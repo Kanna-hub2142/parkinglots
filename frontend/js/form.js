@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const lotId = params.get("lotId");
     const lotName = params.get("lotName");
+    const lotLat = params.get("lat");
+    const lotLng = params.get("lng");
 
     let body = document.getElementById("form-box1");
     body.classList.add("form-box");
@@ -181,8 +183,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 statusMsg.style.display = "block";
                 statusMsg.style.background = "#dcfce7";
                 statusMsg.style.color = "#16a34a";
-                statusMsg.textContent = data.message;
+                statusMsg.textContent = `✅ ${data.message} — Redirecting to nearby events...`;
                 formContainer.reset();
+
+                // Redirect to events page using the parking lot's coordinates
+                setTimeout(() => {
+                    const eventsUrl = new URL("events.html", window.location.href);
+                    if (lotLat && lotLng) {
+                        eventsUrl.searchParams.set("lat", lotLat);
+                        eventsUrl.searchParams.set("lng", lotLng);
+                    }
+                    if (lotName) {
+                        eventsUrl.searchParams.set("lotName", lotName);
+                    }
+                    window.location.href = eventsUrl.toString();
+                }, 1500);
             } else {
                 statusMsg.style.display = "block";
                 statusMsg.style.background = "#fee2e2";

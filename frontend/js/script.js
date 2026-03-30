@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     window.location.href = "login.html";
                     return;
                 }
-                window.location.href = `form.html?lotId=${parking.id}&lotName=${encodeURIComponent(placeName)}`;
+                window.location.href = `form.html?lotId=${parking.id}&lotName=${encodeURIComponent(placeName)}&lat=${parking.lat}&lng=${parking.long}`;
             };
 
             let qrButton = document.createElement("button");
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     <div class="progress-bar ${occupiedPercent > 80 ? 'red' : 'orange'}" style="width:${occupiedPercent}%;">${Math.round(occupiedPercent)}% Occupied</div>
                 </div>
                 <div class="btn-group">
-                    <button class="btn predict" onclick="window.location.href='form.html?lotId=${parking.id}&lotName=${encodeURIComponent(placeName)}'">Register Vehicle</button>
+                    <button class="btn predict" onclick="window.location.href='form.html?lotId=${parking.id}&lotName=${encodeURIComponent(placeName)}&lat=${parking.lat}&lng=${parking.long}'">Register Vehicle</button>
                     <button class="btn qr">QR Code</button>
                 </div>
             `;

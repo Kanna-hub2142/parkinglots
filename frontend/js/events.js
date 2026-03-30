@@ -11,6 +11,31 @@ document.addEventListener("DOMContentLoaded", async function () {
     const eventsContainer = document.getElementById("eventsContainer");
     const locationStatus = document.getElementById("locationStatus");
 
+    // Check if lat/lng were passed via URL params (e.g. after parking registration)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramLat = parseFloat(urlParams.get("lat"));
+    const paramLng = parseFloat(urlParams.get("lng"));
+    const paramLotName = urlParams.get("lotName");
+
+    if (!isNaN(paramLat) && !isNaN(paramLng)) {
+        // Use the parking lot's coordinates (redirected from registration)
+
+        const radius = 5000;
+        const label = paramLotName ? `📍 Showing events within ${radius / 1000}km of ${paramLotName}` : `📍 Showing events within ${radius / 1000}km of the parking lot`;
+        locationStatus.textContent = label;
+
+        try {
+            console.log("Using parkinglots location");
+            const res = await fetch(`${API_BASE}/events/nearby?latitude=${paramLat}&longitude=${paramLng}&radius=${radius}&page=1&page_size=20`);
+            const data = await res.json();
+            renderEvents(data.events);
+        } catch (error) {
+            handleError("Failed to fetch event data.");
+        }
+        return;
+    }
+
+    // No URL params — fall back to browser geolocation (navbar access)
     if (!navigator.geolocation) {
         handleError("Geolocation is not supported by your browser.");
         return;
@@ -22,6 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         locationStatus.textContent = `📍 Showing events within ${radius / 1000}km of your location`;
 
         try {
+            console.log("Using current location");
             const res = await fetch(`${API_BASE}/events/nearby?latitude=${latitude}&longitude=${longitude}&radius=${radius}&page=1&page_size=20`);
             const data = await res.json();
             renderEvents(data.events);

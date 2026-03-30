@@ -45,7 +45,7 @@ app.get('/api/events/nearby', async (c) => {
     const params = new URLSearchParams({
         latitude: latitude || '12.971322',
         longitude: longitude || '77.706048',
-        radius: radius || '5000',
+        radius: radius || '50000',
         page: page || '1',
         page_size: page_size || '20'
     });

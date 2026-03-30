@@ -201,11 +201,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <div class="progress">
                     <div class="progress-bar ${occupiedPercent > 80 ? 'red' : 'orange'}" style="width:${occupiedPercent}%;">${Math.round(occupiedPercent)}% Occupied</div>
                 </div>
-                <div class="btn-group">
-                    <button class="btn predict" onclick="window.location.href='form.html?lotId=${parking.id}&lotName=${encodeURIComponent(placeName)}&lat=${parking.lat}&lng=${parking.long}'">Register Vehicle</button>
-                    <button class="btn qr">QR Code</button>
-                </div>
             `;
+
+            buttonContainer.appendChild(RegisterButton);
+            buttonContainer.appendChild(qrButton);
+            ChildCardContainer.appendChild(buttonContainer);
 
             CardContainer.appendChild(ChildCardContainer);
         });

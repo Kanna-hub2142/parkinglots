@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
-        const radius = 5000;
+        const radius = 50000;
         locationStatus.textContent = `📍 Showing events within ${radius / 1000}km of your location`;
 
         try {

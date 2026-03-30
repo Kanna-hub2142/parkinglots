@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
-        const radius = 50000;
+        const radius = 5000;
         locationStatus.textContent = `📍 Showing events within ${radius / 1000}km of your location`;
 
         try {
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     async function fetchDefaultEvents() {
         const defaultLat = 12.97135;
         const defaultLong = 77.70599;
-        const radius = 5000;
+        const radius = 50000;
 
         try {
             const res = await fetch(`${API_BASE}/events/nearby?latitude=${defaultLat}&longitude=${defaultLong}&radius=${radius}&page=1&page_size=20`);

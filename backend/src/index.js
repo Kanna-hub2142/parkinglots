@@ -51,7 +51,7 @@ app.get('/api/events/nearby', async (c) => {
     });
 
     try {
-        const response = await fetch(`http://eventpark-api-alb-1390290683.us-east-1.elb.amazonaws.com:8001/api/v1/events/nearby?${params}`, {
+        const response = await fetch(`https://qwzj86l90m.execute-api.us-east-1.amazonaws.com/prod/api/v1/events/nearby?${params}`, {
             headers: {
                 'accept': 'application/json',
                 'x-api-key': 'key_eventpark'

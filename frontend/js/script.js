@@ -9,14 +9,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (token && user) {
         navButtons.innerHTML = `
             <span style="color:#4CAF50;font-weight:600;">👤 ${user.username}</span>
-            <button class="login-btn" onclick="window.location.href='events.html'">Events</button>
+            <!-- <button class="login-btn" onclick="window.location.href='events.html'">Events</button> -->
             <button class="login-btn" onclick="window.location.href='my-vehicles.html'">My Vehicles</button>
             ${user.role === 'ADMIN' ? '<button class="signup-btn" onclick="window.location.href=\'admin.html\'">Admin Panel</button>' : ''}
             <button class="signup-btn" style="background:#ef4444;" onclick="logout()">Logout</button>
         `;
     } else {
         navButtons.innerHTML = `
-            <button class="login-btn" onclick="window.location.href='events.html'">Events</button>
+            <!-- <button class="login-btn" onclick="window.location.href='events.html'">Events</button> -->
             <button class="login-btn" onclick="openLogin()">Login</button>
             <button class="signup-btn" onclick="openRegister()">Register</button>
         `;
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     function renderLots(lots) {
         let body = document.getElementById("cardsSection");
         body.innerHTML = "";
-        
+
         let CardContainer = document.createElement("div");
         CardContainer.classList.add("cards");
 

@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     navButtons.innerHTML = `
         <span style="color:#4CAF50;font-weight:600;">👤 ${user.username} (Admin)</span>
         <button class="login-btn" onclick="window.location.href='index.html'">Dashboard</button>
-        <button class="login-btn" onclick="window.location.href='events.html'">Events</button>
+        <!-- <button class="login-btn" onclick="window.location.href='events.html'">Events</button> -->
         <button class="login-btn" onclick="window.location.href='my-vehicles.html'">My Vehicles</button>
         <button class="signup-btn" style="background:#ef4444;" onclick="logout()">Logout</button>
     `;
